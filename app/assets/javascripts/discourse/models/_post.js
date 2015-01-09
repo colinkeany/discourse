@@ -69,14 +69,8 @@ Discourse.Post = Discourse.Model.extend({
   }.property("user_id"),
 
   bookmarkedChanged: function() {
-    Discourse.Post.bookmark(this.get('id'), this.get('bookmarked'))
-             .then(null, function (error) {
-               if (error && error.responseText) {
-                 bootbox.alert($.parseJSON(error.responseText).errors[0]);
-               } else {
-                 bootbox.alert(I18n.t('generic_error'));
-               }
-             });
+    if (this.get("post_number") === 1) { this.set("topic.bookmarked", this.get("bookmarked")); }
+    Discourse.Post.bookmark(this.get('id'), this.get('bookmarked'));
   }.observes('bookmarked'),
 
   wikiChanged: function() {
@@ -494,7 +488,16 @@ Discourse.Post.reopenClass({
   },
 
   bookmark: function(postId, bookmarked) {
-    return Discourse.ajax("/posts/" + postId + "/bookmark", { type: 'PUT', data: { bookmarked: bookmarked } });
+    return Discourse.ajax("/posts/" + postId + "/bookmark", {
+      type: 'PUT',
+      data: { bookmarked: bookmarked }
+    }).then(null, function (error) {
+      if (error && error.responseText) {
+        bootbox.alert($.parseJSON(error.responseText).errors[0]);
+      } else {
+        bootbox.alert(I18n.t('generic_error'));
+      }
+    });
   }
 
 });

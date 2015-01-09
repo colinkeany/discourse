@@ -213,7 +213,11 @@ export default ObjectController.extend(Discourse.SelectedPostsCount, BufferedCon
         alert(I18n.t("bookmarks.not_bookmarked"));
         return;
       }
-      post.toggleProperty('bookmarked');
+      if (post) {
+        post.toggleProperty('bookmarked');
+      } else {
+        this.get("model").toggleBookmark();
+      }
       return false;
     },
 
